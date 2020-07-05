@@ -1,3 +1,6 @@
+react 생활코딩 강의 학습
+=========================
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
