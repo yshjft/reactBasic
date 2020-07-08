@@ -2,11 +2,12 @@ import React, {Component} from 'react';
 import TOC from './components/TOC';
 import Content from './components/Cotent';
 import Subject from './components/Subject';
-// import logo from './logo.svg';
+//연습용 컴포넌트
 import './App.css';
 import Practice1 from './components/Practice1';
 import Practice2 from './components/Practice2';
 import Practice3 from './components/Practice3';
+import MealContent from './components/Meal/MealContent';
 
 
 class App extends Component {
@@ -19,12 +20,13 @@ class App extends Component {
     super(props);
     this.state={
       mode:"read",
+      selected_content_id:2,
       Subject:{title:"web", sub:"world wide web!"},
       welcome:{title:"welcome", desc:"Hello React"},
       Contents:[
-        {id:1, title:'html', desc:'아몰랑'},
-        {id:2, title:'CSS', desc:'아몰랑123'},
-        {id:3, title:'JavaScript', desc:'아몰랑123abc'},
+        {id:1, title:'html', desc:'HTML is for information'},
+        {id:2, title:'CSS', desc:'CSS is for design'},
+        {id:3, title:'JavaScript', desc:'JavaScript is for interactive'},
       ],
 
       // 연습
@@ -34,6 +36,12 @@ class App extends Component {
         {id:2, text:'text 2'},
         {id:3, text:'text 3'},
       ],
+      time:"아침",
+      meal:[
+        {id:1, title:"breakfast", menu:"죽"},
+        {id:2, title:"lunch", menu:"샌드위치"},
+        {id:3, title:"dinner", menu:"소고기"} 
+      ],
     }
   }
   render(){
@@ -42,33 +50,72 @@ class App extends Component {
       _title=this.state.welcome.title;
       _desc=this.state.welcome.desc;
     }else if(this.state.mode === "read"){
-      _title=this.state.Contents[0].title;
-      _desc=this.state.Contents[0].desc;
+      var i=0;
+      while(i<this.state.Contents.length){
+        var data=this.state.Contents[i];
+        if(data.id === this.state.selected_content_id){
+          _title=data.title;
+          _desc=data.desc;
+          break;
+        }
+        i=i+1;
+      }
     }
+
+    //연습
+    var mealType, mealMenu=null;
+    if(this.state.time ==="아침"){
+      mealType=this.state.meal[0].title;
+      mealMenu=this.state.meal[0].menu;
+    }else if(this.state.time==="점심"){
+      mealType=this.state.meal[1].title;
+      mealMenu=this.state.meal[1].menu;
+    }else if(this.state.time==="저녁"){
+      mealType=this.state.meal[2].title;
+      mealMenu=this.state.meal[2].menu;
+    }
+
     return (
       <div className="App">
-        {/* <Subject 
+        <Subject 
           title={this.state.Subject.title} 
-          sub={this.state.Subject.sub}/> */}
-        <header>
-          <h1><a href="/" onClick={function(e){ // 현재 함수에서 this는 undefined 상태이다. 따라서 bind를 사용한다.
-            e.preventDefault(); // 이벤트가 일어난 태그의 기본적인 도작 방법을 막는다
-
-            // this.state.mode="welcome";
-            
+          sub={this.state.Subject.sub}
+          onChangePage={function(){ //컴포넌트에 이벤트를 생성하고 이벤트에 함수를 설치
             this.setState({ //컴포넌트가 생성된 이후 동적으로 state를 변경할 경우 setState()를 사용한다.
               mode:"welcome"
             });
-          }.bind(this)}>{this.state.Subject.title}</a></h1>
-          {this.state.Subject.sub}
-        </header>
-        <TOC data={this.state.Contents}/>
+          }.bind(this)}/>
+        <TOC 
+          onChangePage={function(id){
+            this.setState({
+              mode:"read",
+              selected_content_id:Number(id), //전달되는 id의 값이 숫자가 아니므로 Number()를 통해서 숫자로 변환한다.
+            });
+          }.bind(this)}
+          data={this.state.Contents}/>
         <Content title={_title} desc={_desc}/>
         <br/>
         <div>================================(아래는 연습용)=====================================</div>
         <Practice1/>
         <Practice2 title="react component with props" subTitle="prpos 사용해보기"/>
         <Practice3 title={this.state.Title.title} contents={this.state.Text}/>
+        <h1><a href="/" onClick={function(e){
+          e.preventDefault();
+          if(this.state.time === "아침"){
+            this.setState({
+              time:"점심"
+            });
+          }else if(this.state.time === "점심"){
+            this.setState({
+              time:"저녁"
+            })
+          }else if(this.state.time === "저녁"){
+            this.setState({
+              time:"아침"
+            });
+          }
+        }.bind(this)}>{this.state.time}</a></h1>
+        <MealContent type={mealType} menu={mealMenu}/>
       </div>
     );
   }
