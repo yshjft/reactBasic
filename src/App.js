@@ -1,12 +1,15 @@
 import React, {Component} from 'react';
 import TOC from './components/TOC';
-import Content from './components/Cotent';
+import ReadContent from './components/ReadCotent';
 import Subject from './components/Subject';
+import Control from './components/Control';
+import CreateContent from './components/CreateContent';
 //연습용 컴포넌트
 import './App.css';
 import Practice1 from './components/Practice1';
 import Practice2 from './components/Practice2';
 import Practice3 from './components/Practice3';
+import MealTime from './components/Meal/MealTime';
 import MealContent from './components/Meal/MealContent';
 
 
@@ -18,8 +21,9 @@ class App extends Component {
   //즉, props나 state 값이 바뀌면 화면이 다시 그려진다.
   constructor(props){ 
     super(props);
+    this.max_content_id=3; //UI에 영향을 주지 않는 정보라 state에 저장하지 앟는다.
     this.state={
-      mode:"read",
+      mode:"create",
       selected_content_id:2,
       Subject:{title:"web", sub:"world wide web!"},
       welcome:{title:"welcome", desc:"Hello React"},
@@ -45,10 +49,11 @@ class App extends Component {
     }
   }
   render(){
-    var _title, _desc = null;
+    var _title, _desc, _article = null;
     if(this.state.mode === "welcome"){
       _title=this.state.welcome.title;
       _desc=this.state.welcome.desc;
+      _article=<ReadContent title={_title} desc={_desc}/>
     }else if(this.state.mode === "read"){
       var i=0;
       while(i<this.state.Contents.length){
@@ -60,6 +65,23 @@ class App extends Component {
         }
         i=i+1;
       }
+      _article=<ReadContent title={_title} desc={_desc}/>
+    }else if(this.state.mode === "create"){
+      _article=<CreateContent onSubmit={function(_title, _desc){
+        this.max_content_id=this.max_content_id+1;
+        //state에 값을 추가 할 때는 push와 같이 original data를 변경하는 것을 사용하지 말 것
+        // this.state.Contents.push(
+        //   {id:this.max_content_id, title:_title, desc:_desc}
+        // );
+        
+        //state에 값을 추가 할 때는 concat처럼 original data를 변경하지 안고 새로운 데이터를 추가하는 것을 사용할 것
+        var _contents=this.state.Contents.concat(
+          {id:this.max_content_id, title:_title, desc:_desc}
+        );
+        this.setState({
+          Contents:_contents,
+        });
+      }.bind(this)}/>
     }
 
     //연습
@@ -75,7 +97,7 @@ class App extends Component {
       mealMenu=this.state.meal[2].menu;
     }
 
-    return (
+    return ( //하위 컴포넌트에서 이벤트를 통하여 상위 컴포넌트를 바꿀 수 있다.
       <div className="App">
         <Subject 
           title={this.state.Subject.title} 
@@ -93,28 +115,33 @@ class App extends Component {
             });
           }.bind(this)}
           data={this.state.Contents}/>
-        <Content title={_title} desc={_desc}/>
+        <Control onChangeMode={function(_mode){
+          this.setState({
+            mode:_mode
+          })
+        }.bind(this)}/>
+        {_article}
         <br/>
         <div>================================(아래는 연습용)=====================================</div>
         <Practice1/>
         <Practice2 title="react component with props" subTitle="prpos 사용해보기"/>
         <Practice3 title={this.state.Title.title} contents={this.state.Text}/>
-        <h1><a href="/" onClick={function(e){
-          e.preventDefault();
-          if(this.state.time === "아침"){
-            this.setState({
-              time:"점심"
-            });
-          }else if(this.state.time === "점심"){
-            this.setState({
-              time:"저녁"
-            })
-          }else if(this.state.time === "저녁"){
-            this.setState({
-              time:"아침"
-            });
-          }
-        }.bind(this)}>{this.state.time}</a></h1>
+        <MealTime title={this.state.time}
+          onChangePage={function(){
+            if(this.state.time === "아침"){
+              this.setState({
+                time:"점심"
+              });
+            }else if(this.state.time === "점심"){
+              this.setState({
+                time:"저녁"
+              })
+            }else if(this.state.time === "저녁"){
+              this.setState({
+                time:"아침"
+              });
+            }
+          }.bind(this)}/>
         <MealContent type={mealType} menu={mealMenu}/>
       </div>
     );
