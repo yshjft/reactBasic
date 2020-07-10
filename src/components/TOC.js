@@ -3,6 +3,12 @@
 import React, {Component} from 'react'; 
 
 class TOC extends Component{
+  shouldComponentUpdate(newProps, newState){ //TOC 컴포넌트가 App의 Contnets 바뀌지 않았는데도 render되므로 shoudlCompoenetUpdate를 사용하여 render함수가 실행될지를 결정한다.
+    if(newProps.data === this.props.data){ //newProps.data : 바뀐값 , this.props.data : 기존 값(이전의 값) 
+      return false; //변경 사항이 없으므로 TOC 컴포넌트의 render 함수를 호출하지 않는다.
+    }
+    return true; // 변경 사항이 있으므로 TOC 컴포넌트의 render 함수를 호출한다.
+  }
   render(){
     var lists=[];
     var data=this.props.data;

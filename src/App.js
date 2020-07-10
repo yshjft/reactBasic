@@ -4,6 +4,8 @@ import ReadContent from './components/ReadCotent';
 import Subject from './components/Subject';
 import Control from './components/Control';
 import CreateContent from './components/CreateContent';
+import UpdateContent from './components/UpdateContent';
+
 //연습용 컴포넌트
 import './App.css';
 import Practice1 from './components/Practice1';
@@ -48,24 +50,27 @@ class App extends Component {
       ],
     }
   }
-  render(){
-    var _title, _desc, _article = null;
+  getReadContent(){
+    var i=0;
+      while(i < this.state.Contents.length){
+        var data=this.state.Contents[i];
+        if(data.id === this.state.selected_content_id){
+          return data;
+          break;
+        }
+        i=i+1;
+      }
+  }
+  getContent(){
+    var _title, _desc, _article,_content = null;
+
     if(this.state.mode === "welcome"){
       _title=this.state.welcome.title;
       _desc=this.state.welcome.desc;
       _article=<ReadContent title={_title} desc={_desc}/>
     }else if(this.state.mode === "read"){
-      var i=0;
-      while(i<this.state.Contents.length){
-        var data=this.state.Contents[i];
-        if(data.id === this.state.selected_content_id){
-          _title=data.title;
-          _desc=data.desc;
-          break;
-        }
-        i=i+1;
-      }
-      _article=<ReadContent title={_title} desc={_desc}/>
+      _content=this.getReadContent();
+      _article=<ReadContent title={_content.title} desc={_content.desc}/>
     }else if(this.state.mode === "create"){
       _article=<CreateContent onSubmit={function(_title, _desc){
         this.max_content_id=this.max_content_id+1;
@@ -75,15 +80,37 @@ class App extends Component {
         // );
         
         //state에 값을 추가 할 때는 concat처럼 original data를 변경하지 안고 새로운 데이터를 추가하는 것을 사용할 것
-        var _contents=this.state.Contents.concat(
-          {id:this.max_content_id, title:_title, desc:_desc}
-        );
+        // var _contents=this.state.Contents.concat(
+        //   {id:this.max_content_id, title:_title, desc:_desc}
+        // );
+
+        //immutable : 원본 안고치고 state값 추가(객체) : 
+        //var a={name : "~~~"}; var b=Object.assign{{}, a}; 활용할 것
+
+        //immutable : 원본 안고치고 state 값 추가(배열)
+        var newContents= Array.from(this.state.Contents);
+        newContents.push({id:this.max_content_id, title:_title, desc:_desc});
+
         this.setState({
-          Contents:_contents,
+          Contents:newContents,
+        });
+
+      }.bind(this)}/>
+    }else if(this.state.mode === 'update'){
+      _content=this.getReadContent();
+      _article=<UpdateContent data={_content} onSubmit={function(_title, _desc){
+        this.max_content_id=this.max_content_id+1;
+        var newContents= Array.from(this.state.Contents);
+        newContents.push({id:this.max_content_id, title:_title, desc:_desc});
+        this.setState({
+          Contents:newContents,
         });
       }.bind(this)}/>
     }
+    return _article;
+  }
 
+  render(){
     //연습
     var mealType, mealMenu=null;
     if(this.state.time ==="아침"){
@@ -120,7 +147,7 @@ class App extends Component {
             mode:_mode
           })
         }.bind(this)}/>
-        {_article}
+        {this.getContent()}
         <br/>
         <div>================================(아래는 연습용)=====================================</div>
         <Practice1/>
