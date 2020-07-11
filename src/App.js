@@ -25,7 +25,7 @@ class App extends Component {
     super(props);
     this.max_content_id=3; //UI에 영향을 주지 않는 정보라 state에 저장하지 앟는다.
     this.state={
-      mode:"create",
+      mode:"welcome",
       selected_content_id:2,
       Subject:{title:"web", sub:"world wide web!"},
       welcome:{title:"welcome", desc:"Hello React"},
@@ -62,7 +62,7 @@ class App extends Component {
       }
   }
   getContent(){
-    var _title, _desc, _article,_content = null;
+    var _id, _title, _desc, _article,_content = null;
 
     if(this.state.mode === "welcome"){
       _title=this.state.welcome.title;
@@ -93,19 +93,28 @@ class App extends Component {
 
         this.setState({
           Contents:newContents,
+          mode :'read',
+          selected_content_id:this.max_content_id,
         });
-
       }.bind(this)}/>
     }else if(this.state.mode === 'update'){
       _content=this.getReadContent();
-      _article=<UpdateContent data={_content} onSubmit={function(_title, _desc){
-        this.max_content_id=this.max_content_id+1;
-        var newContents= Array.from(this.state.Contents);
-        newContents.push({id:this.max_content_id, title:_title, desc:_desc});
-        this.setState({
-          Contents:newContents,
-        });
-      }.bind(this)}/>
+      _article=<UpdateContent data={_content} onSubmit={
+        function(_id, _title, _desc){
+          var _contents = Array.from(this.state.Contents); // Contetns라는 배여을 복사한 새로은 배열이 만들어진다.
+          var i=0;
+          while(i <_contents.length){
+            if(_contents[i].id === _id){
+              _contents[i]={id:_id, title:_title, desc:_desc};
+              break;
+            }
+            i=i+1;
+          }
+          this.setState({
+            Contents:_contents,
+            mode :'read',
+          });
+        }.bind(this)}/>
     }
     return _article;
   }
@@ -143,9 +152,33 @@ class App extends Component {
           }.bind(this)}
           data={this.state.Contents}/>
         <Control onChangeMode={function(_mode){
-          this.setState({
-            mode:_mode
-          })
+          if(_mode === 'delete'){
+            if(window.confirm('정말 삭제하시겠습니까?')){ //window.confirm : 확인 누르면 true, 그렇지 않으면 false
+              var _contents = Array.from(this.state.Contents);
+              var i=0;
+              while(i < this.state.Contents.length){
+                if(_contents[i].id === this.state.selected_content_id){
+                  _contents.splice(i, 1); //어디서부터 어디까지 지울 것인가
+                  break;
+                }
+                i=i+1;
+              }
+              for(var j=0; j<_contents.length; j++){ //삭제로 인한 id 재설정
+                _contents[j].id=j+1;
+              }
+              this.max_content_id=this.max_content_id-1; //삭제로 인한 max_content_id 변경
+              this.setState({
+                mode:'welcome',
+                Contents:_contents,
+              });
+              alert('삭제 되었습니다.');
+            }
+          }else{
+            this.setState({
+              mode:_mode
+            })
+          }
+          
         }.bind(this)}/>
         {this.getContent()}
         <br/>

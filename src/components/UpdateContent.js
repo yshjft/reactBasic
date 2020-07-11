@@ -4,7 +4,7 @@ class UpdateContent extends Component{
   constructor(props){
     super(props);
     this.state={
-      id:this.props.data.id,
+      id:this.props.data.id, //어디를 업데이트 할 것인지에 대한 식별자 역할
       title:this.props.data.title,
       desc:this.props.data.desc,
     }
@@ -21,13 +21,14 @@ class UpdateContent extends Component{
         <form action="/create_process" method="post"
           onSubmit={function(e){ //onSubmit : form태그 안에 있는 submit 버튼을 누르면 이벤트를 호출, HTML form의 고유한 기능 
             e.preventDefault(); //onSubmit으로 인한 페이지 변경이 일어나지 않도록 막음.
-            this.props.onSubmit(
-              e.target.title.value, 
-              e.target.desc.value
+            this.props.onSubmit( // props로 받은 함수 호출
+              this.state.id,
+              this.state.title,
+              this.state.desc,
             );
           }.bind(this)}
         >
-          <input type="hidden" name="id" value={this.state.id}></input> {/* hidden form */}
+          <input type="hidden" name="id" value={this.state.id}></input> {/* hidden form, 식별자를 위해서 사용 */}
           <p>
             <input 
               type="text" 
